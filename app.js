@@ -3,14 +3,26 @@ var http = require('http').Server(app); //server
 var io = require('socket.io')(http); //creates a new socket.io instance 
                                      //attached to the http server
 
+var nsp = io.of('/my-namespace');
+var nsp = io.of('/other');
+
 //the message event to pass message from the server to the client
-app.get('/', function(req, res) {
+app.get('/my-namespace', function(req, res) {
     //var path = require('path'); 
     //console.log(path.join(__dirname, 'page.html'));
     //res.sendFile(path.join(__dirname, 'page.html'));
 
     res.sendfile('page.html');
 });
+
+app.get('/other', function(req, res) {
+    //var path = require('path');
+    //console.log(path.join(__dirname, 'page.html'));
+    //res.sendFile(path.join(__dirname, 'page.html'));
+
+    res.sendfile('next.html');
+});
+
 
 http.listen(3000, function() {
    console.log('listening on localhost:3000');
@@ -24,7 +36,7 @@ http.listen(3000, function() {
 io.on('connection', function(socket) {
     console.log('made connection');
 
-   var nsp = io.of('/my-namespace'); 
+   //var nsp = io.of('/my-namespace'); 
 
    //To allow this, Socket.IO provides us the ability to create custom events. 
    //You can create and fire custom events using the socket.emit function.

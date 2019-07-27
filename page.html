@@ -28,13 +28,16 @@
       
       //socket.emit('clientEvent', 'Sent an event from the client!');
     
-      /*To handle this custom event on client we need a listener that listens for the event testerEvent.*/
+      /*To handle this custom event on client we need a listener that 
+      listens for the event testerEvent.*/
+
       var parent = document.createElement("select");
       parent.id = "selector";
       
       socket.on('namespaceApproved', function(data) {
-          //window.location = "C:\Users\Justin Kelly\TextChat\new_project\TextChatApp\next.html";
+          window.location.assign('http://localhost:3000/other');
       });
+
       var namesp;
       socket.on('sendNamespace', function(data) { 
              namesp = data.namespaces;
