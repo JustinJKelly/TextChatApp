@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<body>
+   <head>
+      <title>Hello world</title>
+   </head>
+   <h2>Welcome to the ChatRoom!</h2>
+
+   <p>Please choose room to enter:</p>
+   <script src = "/socket.io/socket.io.js"></script>
+   <div id ="divide"/>
+   
+   <script>
+	   function sendToServer() {
+                var sel = document.getElementById( "selector");
+
+		var item = sel.options[sel.selectedIndex].value;
+
+                alert("You choose " + item + ".");
+		socket.emit('chooseNamespace', { value: item });
+           }
+   </script>
+   <script>
+      var socket = io();
+      
+      //We can also emit events from the client. To emit an event 
+      //from your client, use the emit function on the socket object.
+      
+      //socket.emit('clientEvent', 'Sent an event from the client!');
+    
+      /*To handle this custom event on client we need a listener that listens for the event testerEvent.*/
+      var parent = document.createElement("select");
+      parent.id = "selector";
+      
+      socket.on('namespaceApproved', function(data) {
+          window.location = 'next.html';
+      }
+      var namesp;
+      socket.on('sendNamespace', function(data) { 
+             namesp = data.namespaces;
+ 
+	     for (i=0; i < namesp.length; ++i) {
+                
+                var rm1 = document.createElement("option");
+                rm1.value = namesp[i];
+                rm1.text = namesp[i];
+		//rm1.innerHTML = namesp[i];
+                parent.appendChild(rm1);
+             }
+
+             var rm = document.createElement("option");
+             rm.value = "new room";
+             rm.text = "new room";
+             parent.appendChild(rm);
+
+             var div = document.getElementById("divide");
+             div.appendChild(parent);
+      });
+
+   </script>
+   <button onclick="sendToServer()" type="button"> Submit </button>
+  </body>
+</html>
