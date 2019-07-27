@@ -43,8 +43,7 @@ io.on('connection', function(socket) {
    socket.on('chooseNamespace', function(data) {
       console.log("Chosen namespace is " + data.value);
       //check if namespace valid,otherwise make new one
-      //socket.emit('
-      
+      socket.emit('namespaceApproved', { data: "approved" });
    });
    
    socket.on('disconnect', function () {
