@@ -7,16 +7,18 @@
 <body>
 
 <h2>Welcome to the ChatRoom!</h2>
-
+<script src = "/socket.io/socket.io.js"></script> 
 <script> var globalID = "mess";
          var globalButton = "butt";
          var count = 1;
+         var socket = io();
 </script>
 
 <div class="container" id="root">
   <textarea id="mess" placeholder="Type.." rows="5" cols="50"></textarea>
   <button id="butt"  onclick="sendMessage()" type="button"> Send </button>
   <script>
+      
       function sendMessage() {
          var currentdate = new Date(); 
          var element = document.getElementById(globalID);

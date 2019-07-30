@@ -14,7 +14,7 @@
 	   function sendToServer() {
                 var sel = document.getElementById( "selector");
 
-		var item = sel.options[sel.selectedIndex].value;
+		var item = sel.options[sel.selectedIndex].value;  
 
                 alert("You choose " + item + ".");
 		socket.emit('chooseNamespace', { value: item });
@@ -35,22 +35,23 @@
       parent.id = "selector";
       
       socket.on('namespaceApproved', function(data) {
-          window.location.assign('http://localhost:3000/other');
+	  alert(data.ext);
+          window.location.assign('http://localhost:3000' + data.ext);
       });
-
+ 
+      
       var namesp;
+      //this will send namespaces available to new client
       socket.on('sendNamespace', function(data) { 
              namesp = data.namespaces;
- 
+             //iterate thru the namespaces and add to html dropdown list
 	     for (i=0; i < namesp.length; ++i) {
-                
                 var rm1 = document.createElement("option");
                 rm1.value = namesp[i];
                 rm1.text = namesp[i];
-		//rm1.innerHTML = namesp[i];
                 parent.appendChild(rm1);
              }
-
+             //add option to create namespace
              var rm = document.createElement("option");
              rm.value = "new room";
              rm.text = "new room";
