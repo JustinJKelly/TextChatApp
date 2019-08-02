@@ -7,7 +7,7 @@
    <h2>Welcome to the ChatRoom!</h2>
     <script src = "/socket.io/socket.io.js">
     </script>
-   <p>Please choose room to enter:</p>
+   <p id="para">Please choose room to enter:</p>
    <div id ="divide">
      <textarea id="user_name" placeholder="Enter username" rows="1" 
 	     cols="15"></textarea>
@@ -20,8 +20,72 @@
 	     Submit </button>
 
     </div>
+    <script> var globalID = "mess";
+         var globalButton = "button";
+         var count = 1;
+    </script>
+
+  <div hidden class="container" id="root">
+    <textarea id="mess" placeholder="Type.." rows="5" cols="50"></textarea>
+    <button id="button"  onclick="sendMessage()" type="button"> Send </button>
+    <script>
+      function sendMessage() {
+         var currentdate = new Date();
+         var element = document.getElementById(globalID);
+         var butt = document.getElementById(globalButton);
+
+         var datetime = ""+ (currentdate.getMonth()+1) + "/"
+                + (currentdate.getDate())  + "/"
+                + currentdate.getFullYear() + " "
+                + (currentdate.getHours()) + ":"
+                + currentdate.getMinutes();
+
+         var thismessage = element.value;
+         element.style.display='none';
+         butt.style.display='none';
+
+         var root = document.getElementById("root");
+         var parent = document.createElement("div");
+         parent.className = "container";
+
+         var para = document.createElement("p");
+         var node = document.createTextNode(thismessage);
+         para.appendChild(node);
+
+         var image = document.createElement("img");
+         image.src = "JustinKellyProfile.jpg";
+
+         var time = document.createElement("span");
+         time.className = "time-right";
+         time.innerHTML = datetime;
+
+         parent.appendChild(image);
+         parent.appendChild(para);
+         parent.appendChild(time);
+         root.appendChild(parent);
+
+         var newText = document.createElement("textarea");
+         newText.id = "mess" + count;
+         newText.cols = 50;
+         newText.rows = 5
+
+         var newButt = document.createElement("button");
+         newButt.onclick = function () { sendMessage(); };
+         newButt.id = "button" + count;
+         newButt.innerHTML = " Send ";
+         root.appendChild(newText);
+         root.appendChild(newButt);
+
+         ++count;
+         globalButton = newButt.id;
+         globalID = newText.id;
+      }
+     </script>
+   </div>
      <script>
          var socket = io();
+         var username = "";
+         var namespace = "";
          
          function sendUser() {
              var elem = document.getElementById("user_name");
@@ -57,15 +121,23 @@
       
         /*To handle this custom event on client we need a listener that 
         listens for the event testerEvent.*/
-
+        
+        socket.on('namespaceNotAppr', function(data) {
+             alert("username already taken, please choose another");
+        });
         var parent = document.createElement("select");
         parent.id = "selector";
       
         socket.on('namespaceApproved', function(data) {
            alert(data.ext);
-           window.location.assign('http://localhost:3000' + data.ext);
-        });
- 
+           namespace = data.ext;
+           //window.location.assign('http://localhost:3000' + data.ext);
+	   document.getElementById("para").style.display = 'none';
+           document.getElementById("selector").style.display = 'none';
+           document.getElementById("butt").style.display = 'none';
+           document.getElementById("new_namespace").style.display = 'none';
+           document.getElementById("root").hidden = false;
+         });
       
         var namesp;
         //this will send namespaces available to new client
@@ -94,7 +166,7 @@
 	     div.appendChild(document.createElement("br"));
              div.appendChild(parent);
         });
-    
+
    </script>
   </body>
 </html>

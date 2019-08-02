@@ -50,15 +50,16 @@ io.on('connection', function(socket) {
       console.log("Username: " + data.check);
       for (i=0; i<users.length; ++i) {
            console.log("Curr: " + users[i]);
-            if (users[i] == data.check) {
+           if (users[i] == data.check) {
                 contains = true;
                 break;
            }
         }
 
       if (contains) {
-          alert("username already taken, please choose another and submit");
+          socket.emit("namespaceNotAppr", {data: "username already taken, please choose another and submit"});
       } else {
+	  users[users.length]=data.check;
 	  userNameSp[data.check] = "";
           console.log("will emit");
           socket.emit('sendNamespace', { namespaces:rooms });
@@ -72,7 +73,7 @@ io.on('connection', function(socket) {
       var contains = false;
       console.log("Chosen: " + data.value);
       for (i=0; i<nmsps.length; ++i) {
-	  console.log("Curr: " + nmsps[i]);
+	  //console.log("Curr: " + nmsps[i]);
           if (nmsps[i] == data.value) {
                contains = true;
 	       currNP = nmsps[i];
