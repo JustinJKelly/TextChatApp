@@ -5,44 +5,77 @@
       <title>Hello world</title>
    </head>
    <h2>Welcome to the ChatRoom!</h2>
-
+    <script src = "/socket.io/socket.io.js">
+    </script>
    <p>Please choose room to enter:</p>
-   <script src = "/socket.io/socket.io.js"></script>
-   <div id ="divide"/>
-   
-   <script>
-	   function sendToServer() {
-                var sel = document.getElementById( "selector");
+   <div id ="divide">
+     <textarea id="user_name" placeholder="Enter username" rows="1" 
+	     cols="15"></textarea>
+     <br/>     
+     <button id="butt1" onclick="sendUser()" type="button"> 
+	     Check Username</button>
+     <textarea hidden id="new_namespace" placeholder="Enter new namespace"
+   rows="1" cols="15"> </textarea>
+     <button  hidden id="butt" onclick="sendToServer()" type="button"> 
+	     Submit </button>
 
-		var item = sel.options[sel.selectedIndex].value;  
+    </div>
+     <script>
+         var socket = io();
+         
+         function sendUser() {
+             var elem = document.getElementById("user_name");
+             var name = elem.value;
+	     alert(name);
+             if (name.length < 6) {
+                alert("please enter a name greater than 5 characters long.");
+             } else {
+                alert("will check");
+                socket.emit('checkUserName', { check:name });
+             }
+          }
 
-                alert("You choose " + item + ".");
-		socket.emit('chooseNamespace', { value: item });
-           }
-   </script>
-   <script>
-      var socket = io();
-      
-      //We can also emit events from the client. To emit an event 
-      //from your client, use the emit function on the socket object.
-      
-      //socket.emit('clientEvent', 'Sent an event from the client!');
-    
-      /*To handle this custom event on client we need a listener that 
-      listens for the event testerEvent.*/
+          function sendToServer() {
+               
+              var sel = document.getElementById( "selector");
+              var item = sel.options[sel.selectedIndex].value;
+              var element = document.getElementById("new_namespace");
+              var new_name = "";
 
-      var parent = document.createElement("select");
-      parent.id = "selector";
+              if (item == "new room") {
+                 new_name = element.value;
+              } else {
+                 alert("You choose " + item + ".");
+                 socket.emit('chooseNamespace', { value: item });
+              }
+         }
+
+        //We can also emit events from the client. To emit an event 
+        //from your client, use the emit function on the socket object.
       
-      socket.on('namespaceApproved', function(data) {
-	  alert(data.ext);
-          window.location.assign('http://localhost:3000' + data.ext);
-      });
+        //socket.emit('clientEvent', 'Sent an event from the client!');
+      
+        /*To handle this custom event on client we need a listener that 
+        listens for the event testerEvent.*/
+
+        var parent = document.createElement("select");
+        parent.id = "selector";
+      
+        socket.on('namespaceApproved', function(data) {
+           alert(data.ext);
+           window.location.assign('http://localhost:3000' + data.ext);
+        });
  
       
-      var namesp;
-      //this will send namespaces available to new client
-      socket.on('sendNamespace', function(data) { 
+        var namesp;
+        //this will send namespaces available to new client
+        socket.on('sendNamespace', function(data) { 
+
+             document.getElementById("user_name").style.display = 'none';
+	     document.getElementById("butt1").style.display = 'none';
+	     document.getElementById("new_namespace").hidden = false;
+	     document.getElementById("butt").hidden = false;
+	     
              namesp = data.namespaces;
              //iterate thru the namespaces and add to html dropdown list
 	     for (i=0; i < namesp.length; ++i) {
@@ -58,10 +91,10 @@
              parent.appendChild(rm);
 
              var div = document.getElementById("divide");
+	     div.appendChild(document.createElement("br"));
              div.appendChild(parent);
-      });
-
+        });
+    
    </script>
-   <button onclick="sendToServer()" type="button"> Submit </button>
   </body>
 </html>

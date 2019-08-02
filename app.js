@@ -2,21 +2,20 @@ var app = require('express')(); //expressJS app
 var http = require('http').Server(app); //server
 var io = require('socket.io')(http); //creates a new socket.io instance 
                                      //attached to the http server
-
+var users = [];
+var userNameSp = {};
 var nmsp2 = io.of('/my-namespace');
 var nmsp1 = io.of('/other');
 
 //the message event to pass message from the server to the client
-app.get('/my-namespace', function(req, res) {
-    //var path = require('path'); 
-    //console.log(path.join(__dirname, 'page.html'));
-    //res.sendFile(path.join(__dirname, 'page.html'));
-  
-    res.sendfile('page.html');
+app.get('/', function(req, res) {
+    
+    console.log(__dirname + '/page.html');
+    res.sendFile(__dirname + '/page.html');
 });
 
 app.get('/other', function(req, res) {
-    res.sendfile('next.html');
+    res.sendFile(__dirname + '/next.html');
 });
 
 
@@ -32,9 +31,9 @@ http.listen(3000, function() {
 io.on('connection', function(socket) {
     console.log('made connection'); 
 
-   //To allow this, Socket.IO provides us the ability to create custom events. 
+   //To allow this, Socket.IO provides us the ability to create custom 
+   //events. 
    //You can create and fire custom events using the socket.emit function.
-
    //For example, the following code emits an event called sendNamespace
    var rooms = Object.keys(io.nsps);
   
@@ -45,12 +44,30 @@ io.on('connection', function(socket) {
        console.log(nmsps[i]);
    }
    
-   socket.emit('sendNamespace', { namespaces:rooms });
-   
+   socket.on('checkUserName', function(data) {
+      
+      var contains = false;
+      console.log("Username: " + data.check);
+      for (i=0; i<users.length; ++i) {
+           console.log("Curr: " + users[i]);
+            if (users[i] == data.check) {
+                contains = true;
+                break;
+           }
+        }
+
+      if (contains) {
+          alert("username already taken, please choose another and submit");
+      } else {
+	  userNameSp[data.check] = "";
+          console.log("will emit");
+          socket.emit('sendNamespace', { namespaces:rooms });
+      }
+   });
+
    socket.on('chooseNamespace', function(data) {
       console.log("Chosen namespace is " + data.value);
       
-      var currNP = "";
       //check if namespace valid,otherwise make new one
       var contains = false;
       console.log("Chosen: " + data.value);
@@ -64,11 +81,9 @@ io.on('connection', function(socket) {
       }
       
       if (!contains) {
-          io.of(data.value);
+          //io.of(data.value);
           nmsps.push(data.value);
-          currNP = data.value;
       }
-
       socket.emit('namespaceApproved', { ext: data.value });
    });
    
