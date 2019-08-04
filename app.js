@@ -1,24 +1,23 @@
-var app = require('express')(); //expressJS app
+var express = require('express'); //expressJS app
+var app = express();
 var http = require('http').Server(app); //server
 var io = require('socket.io')(http); //creates a new socket.io instance 
                                      //attached to the http server
 var users = [];
-var userNameSp = {};
-var nmsp2 = io.of('/my-namespace');
-var nmsp1 = io.of('/other');
+var rooms = [];
+var userNameRoom = {};
+
+//add css
+var path = require('path');
+app.use(express.static(path.join(__dirname,'public')));
 
 //the message event to pass message from the server to the client
-app.get('/', function(req, res) {
-    
-    console.log(__dirname + '/page.html');
+app.get('/', function(req, res) {    
+    //console.log(__dirname + '/page.html');
     res.sendFile(__dirname + '/page.html');
 });
 
-app.get('/other', function(req, res) {
-    res.sendFile(__dirname + '/next.html');
-});
-
-
+//listen on port 3000
 http.listen(3000, function() {
    console.log('listening on localhost:3000');
 });
@@ -35,21 +34,12 @@ io.on('connection', function(socket) {
    //events. 
    //You can create and fire custom events using the socket.emit function.
    //For example, the following code emits an event called sendNamespace
-   var rooms = Object.keys(io.nsps);
-  
-   var nmsps = [];
-   for (i=0; i<rooms.length; ++i) {
-       nmsps.push(rooms[i]);
-       console.log(rooms[i]);
-       console.log(nmsps[i]);
-   }
    
    socket.on('checkUserName', function(data) {
       
       var contains = false;
       console.log("Username: " + data.check);
       for (i=0; i<users.length; ++i) {
-           console.log("Curr: " + users[i]);
            if (users[i] == data.check) {
                 contains = true;
                 break;
@@ -57,35 +47,31 @@ io.on('connection', function(socket) {
         }
 
       if (contains) {
-          socket.emit("namespaceNotAppr", {data: "username already taken, please choose another and submit"});
+          socket.emit("UserNotAppr", {data: ""});
       } else {
 	  users[users.length]=data.check;
-	  userNameSp[data.check] = "";
-          console.log("will emit");
-          socket.emit('sendNamespace', { namespaces:rooms });
+	  userNameRoom[data.check] = "";
+	  console.log("rooms: " + rooms.toString());
+          socket.emit('sendRooms', { user: data.check, room: rooms });
       }
    });
 
-   socket.on('chooseNamespace', function(data) {
-      console.log("Chosen namespace is " + data.value);
+   socket.on('chooseRoom', function(data) {
+      console.log("Chosen room is " + data.value);
+      if (data.isNew) {
+          rooms.push(data.value);
+          console.log("rooms: " + rooms.toString());
+	  io.nsps['/'].adapter.rooms[data.value];
+      } 
       
-      //check if namespace valid,otherwise make new one
-      var contains = false;
-      console.log("Chosen: " + data.value);
-      for (i=0; i<nmsps.length; ++i) {
-	  //console.log("Curr: " + nmsps[i]);
-          if (nmsps[i] == data.value) {
-               contains = true;
-	       currNP = nmsps[i];
-	       break;
-	  }
-      }
-      
-      if (!contains) {
-          //io.of(data.value);
-          nmsps.push(data.value);
-      }
-      socket.emit('namespaceApproved', { ext: data.value });
+      socket.emit('roomApproved', { ext: data.value });
+   });
+
+   socket.on("sendMessage", function(data) {
+      console.log("room to send: " + data.currRoom);
+      socket.join(data.currRoom);
+      io.in(data.currRoom).emit('messageFromServer', { user_name: data.user,
+	      mess: data.message, datetime1: data.thisDate });
    });
    
    socket.on('disconnect', function () {
