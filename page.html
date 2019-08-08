@@ -33,6 +33,7 @@
     <button id="button"  onclick="sendMessage()" type="button"> Send </button>
     <script>
       function sendMessage() {
+	 
          var currentdate = new Date();
          var element = document.getElementById("mess");
 
@@ -51,12 +52,13 @@
 	 datetime += hour + ":" + min;
          var thismessage = element.value;
 	 element.value = "";
-
+	
 	 socket.emit('sendMessage', { thisDate: datetime, 
 		    message: thismessage, currRoom: room, user: username }); 
       }
 
       socket.on("messageFromServer", function(data) {
+	
 	 var root = document.getElementById("root");
          var parent = document.createElement("div");
          parent.className = "container";

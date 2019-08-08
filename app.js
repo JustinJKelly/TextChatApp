@@ -63,6 +63,7 @@ io.on('connection', function(socket) {
           console.log("rooms: " + rooms.toString());
 	  io.nsps['/'].adapter.rooms[data.value];
       } 
+      socket.join(data.value);
       
       socket.emit('roomApproved', { ext: data.value });
    });
@@ -70,6 +71,7 @@ io.on('connection', function(socket) {
    socket.on("sendMessage", function(data) {
       console.log("room to send: " + data.currRoom);
       socket.join(data.currRoom);
+
       io.in(data.currRoom).emit('messageFromServer', { user_name: data.user,
 	      mess: data.message, datetime1: data.thisDate });
    });
