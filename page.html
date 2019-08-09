@@ -113,6 +113,20 @@
                  socket.emit('chooseRoom', { value: item, isNew: false });
               }
          }
+   
+         function roomToBeChoosen() {
+              var sel = document.getElementById( "selector");
+              var item = sel.options[sel.selectedIndex].value;
+              if (item == "new room") {
+		 document.getElementById("_button").style.display = 'none';
+		 sel.style.display = 'none';
+                 document.getElementById("new_room").hidden = false;
+                 document.getElementById("butt").hidden = false;
+	      } else {
+		  document.getElementById("_button").style.display = 'none';
+                  sendToServer();
+	      }
+	 }
 
         //We can also emit events from the client. To emit an event 
         //from your client, use the emit function on the socket object.
@@ -148,8 +162,8 @@
              username = data.user;
              document.getElementById("user_name").style.display = 'none';
 	     document.getElementById("butt1").style.display = 'none';
-	     document.getElementById("new_room").hidden = false;
-	     document.getElementById("butt").hidden = false;
+	     //document.getElementById("new_room").hidden = false;
+             //document.getElementById("butt").hidden = false;
 	     
              theseRooms = data.room;
              //iterate thru the namespaces and add to html dropdown list
@@ -168,6 +182,13 @@
              var div = document.getElementById("divide");
 	     div.appendChild(document.createElement("br"));
              div.appendChild(parent);
+
+             var button1 = document.createElement("button");
+	     button1.type = "button";
+             button1.onclick = function() { roomToBeChoosen() };
+	     button1.id = "_button";
+	     button1.innerHTML = "Submit";
+	     div.appendChild(button1);
         });
 
    </script>
